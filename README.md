@@ -69,13 +69,13 @@ from parsley.producers.redis import AsyncRedisProducer
 
 @asynccontextmanager
 async def get_producer(channel_name):
-    producer = AsyncRedisProducer(channel_name='channel_name')
+    producer = AsyncRedisProducer(channel_name=channel_name)
     yield producer
     await producer.close()
 
 
 async def test():
-    with get_producer("test") as test_producer:
+    async with get_producer("test") as test_producer:
         await test_producer.produce("your_func_name", *your_func_args, **your_func_kwargs)
 
 ```
