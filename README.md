@@ -5,7 +5,7 @@ Parsley is a simple asynchronous task manager.
 ## Installation
 
 ```bash
-pip install git+https://github.com/merrazeal/Parsley
+pip install git+https://github.com/merrazeal/Parsley.git
 ```
 
 ## Usage
