@@ -75,7 +75,7 @@ async def get_producer(channel_name):
 
 
 async def test():
-    async with get_producer("test") as test_producer:
+    async with get_producer("your_channel_name") as test_producer:
         await test_producer.produce("your_func_name", *your_func_args, **your_func_kwargs)
 
 ```
