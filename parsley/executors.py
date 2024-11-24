@@ -11,7 +11,7 @@ class AsyncTaskExecutor(BaseAsyncExecutor):
     def __init__(
         self,
         task_registry: dict[str, str],
-        exe_queue: asyncio.Queue = asyncio.Queue(),
+        exe_queue: asyncio.Queue = None,
         logger: logging.Logger = logging.getLogger(""),
     ) -> None:
         self.tasks = {}
@@ -20,6 +20,8 @@ class AsyncTaskExecutor(BaseAsyncExecutor):
         self.exe_queue = exe_queue
 
     async def initialize(self) -> None:
+        if not self.exe_queue:
+            self.exe_queue = asyncio.Queue()
         for task_name, module in self.task_registry.items():
             task_module = import_module(module)
             task = getattr(task_module, task_name)
