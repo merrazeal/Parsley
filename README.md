@@ -56,7 +56,7 @@ if __name__ == '__main__':
     asyncio.run(main())
 ```
 - The task registry name should correspond to the Python path, such as `PYTHONPATH/your_task_module.your_task_module`
-- You can also add the worker in the `on startup` and `on shutdown` events, or within the `lifespan` context to manage the lifecycle of the worker. Ensure that the worker is **non-blocking** (blocking=False)
+- You can also add the worker(like listener) in the `on startup` and `on shutdown` events, or within the `lifespan` context to manage the lifecycle of the worker. Ensure that the worker is **non-blocking** (blocking=False)
 
 
 ### Simple producer example:
