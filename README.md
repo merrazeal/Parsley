@@ -25,12 +25,12 @@ from parsley.executors import AsyncTaskExecutor
 from parsley.worker import AsyncTaskWorker
 
 @asynccontextmanager
-async def get_worker(consumer, task_executor, logger=logging.getLogger(""), bloking=False):
+async def get_worker(consumer, task_executor, logger=logging.getLogger(""), blocking=False):
     worker = AsyncTaskWorker(
         consumer=consumer,
         task_executor=task_executor,
         logger=logger,
-        blocking=bloking,
+        blocking=blocking,
     )
     yield worker
     await worker.close()
@@ -48,7 +48,7 @@ async def main():
             logger=logging.getLogger("executor"),
         ),
         logger=logging.getLogger("worker"),
-        bloking=True,
+        blocking=True,
     ) as worker:
         await worker.run()
 
