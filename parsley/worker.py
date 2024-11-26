@@ -21,6 +21,10 @@ class AsyncTaskWorker(BaseAsyncTaskWorker):
         self.blocking = blocking
 
     async def _poll(self) -> None:
+        """Polls for new messages and pushes them to the task executor's queue.
+        
+        Сonsumer will wait for a message for a specified timeout.
+        """
         while True:
             new_message: Message | None = await self.consumer.consume()
             if new_message:
@@ -28,6 +32,9 @@ class AsyncTaskWorker(BaseAsyncTaskWorker):
                 await self.task_executor.exe_queue.put(new_message)
 
     async def run(self) -> None:
+        """Starts the task worker. Initializes both the consumer and executor,
+        and begins processing messages
+        """
         self.logger.info("Starting to consume messages")
         try:
             await self.task_executor.initialize()
@@ -49,5 +56,6 @@ class AsyncTaskWorker(BaseAsyncTaskWorker):
             asyncio.create_task(self._poll())
 
     async def close(self) -> None:
+        """Closes the consumer and executor, releasing any resources."""
         await self.consumer.close()
         await self.task_executor.close()

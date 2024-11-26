@@ -22,8 +22,10 @@ class AsyncRedisProducer(BaseAsyncProducer):
     async def initialize(self): ...
 
     async def produce(self, task_name, *args, **kwargs):
+        """Publishes a message to the specified Redis channel."""
         message = MessageBuilder.build(task_name, *args, **kwargs)
         await self.client.publish(self.channel_name, message.model_dump_json())
 
     async def close(self) -> None:
+        """Closes the Redis client connection."""
         await self.client.close()

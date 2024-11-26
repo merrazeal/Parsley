@@ -8,6 +8,7 @@ from parsley.settings import settings
 
 
 class AsyncTaskExecutor(BaseAsyncExecutor):
+    """Executor class responsible for executing tasks based on messages from queue."""
     def __init__(
         self,
         task_registry: dict[str, str],
@@ -20,6 +21,7 @@ class AsyncTaskExecutor(BaseAsyncExecutor):
         self.exe_queue = exe_queue
 
     async def initialize(self) -> None:
+        """Initializes task executor by dynamically loading tasks from task registry."""
         if not self.exe_queue:
             self.exe_queue = asyncio.Queue()
         for task_name, module in self.task_registry.items():
@@ -30,6 +32,7 @@ class AsyncTaskExecutor(BaseAsyncExecutor):
         self.logger.info(f"Tasks initialize successfuly: {self.tasks}")
 
     async def _execute(self, task_name: str, input_data: InputData) -> None:
+        """Executes a specific task."""
         self.logger.info(f"Starting task: {task_name} with input data: {input_data}")
         task = self.tasks[task_name]
         try:
@@ -40,6 +43,7 @@ class AsyncTaskExecutor(BaseAsyncExecutor):
             self.logger.info(f"Completed task: '{task_name}'")
 
     async def run(self) -> None:
+        """Periodically polls the execution queue and processes tasks."""
         while True:
             await asyncio.sleep(settings.message_execute_interval)
             self.logger.info("🚀 Starting task execution...")
