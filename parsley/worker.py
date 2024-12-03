@@ -22,7 +22,7 @@ class AsyncTaskWorker(BaseAsyncTaskWorker):
 
     async def _poll(self) -> None:
         """Polls for new messages and pushes them to the task executor's queue.
-        
+
         Сonsumer will wait for a message for a specified timeout.
         """
         while True:

@@ -7,23 +7,21 @@ from parsley.ports.executor import BaseAsyncExecutor
 from parsley.settings import settings
 
 
-class AsyncTaskExecutor(BaseAsyncExecutor):
+class SimpleAsyncTaskExecutor(BaseAsyncExecutor):
     """Executor class responsible for executing tasks based on messages from queue."""
+
     def __init__(
         self,
         task_registry: dict[str, str],
-        exe_queue: asyncio.Queue = None,
         logger: logging.Logger = logging.getLogger(""),
     ) -> None:
         self.tasks = {}
         self.task_registry = task_registry
         self.logger = logger
-        self.exe_queue = exe_queue
+        self.exe_queue = asyncio.Queue()
 
     async def initialize(self) -> None:
         """Initializes task executor by dynamically loading tasks from task registry."""
-        if not self.exe_queue:
-            self.exe_queue = asyncio.Queue()
         for task_name, module in self.task_registry.items():
             task_module = import_module(module)
             task = getattr(task_module, task_name)
