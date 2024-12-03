@@ -67,7 +67,7 @@ async def main():
 if __name__ == '__main__':
     asyncio.run(main())
 ```
-- The task registry name should correspond to the Python path, such as `PYTHONPATH/your_task_module.your_task_module`
+- The task registry module value should match the Python import path, like PYTHONPATH/your_module.your_module.
 - You can also add the worker(like listener) in the `on startup` and `on shutdown` events, or within the `lifespan` context to manage the lifecycle of the worker. Ensure that the worker is **non-blocking** (blocking=False)
 
 
@@ -159,7 +159,7 @@ if __name__ == '__main__':
     asyncio.run(main())
 
 ```
-- The task registry name should correspond to the Python path, such as `PYTHONPATH/your_task_module.your_task_module`
+- The task registry module value should match the Python import path, like PYTHONPATH/your_module.your_module.
 - You can also add the worker(like listener) in the `on startup` and `on shutdown` events, or within the `lifespan` context to manage the lifecycle of the worker. Ensure that the worker is **non-blocking** (blocking=False)
 
 ### Simple producer example:
@@ -191,3 +191,17 @@ if __name__ == "__main__":
 - `your_func_name` - This is the name of the task, which corresponds to a consumer task that will be processed.
 - `your_func_args(not required)` - These are the positional arguments passed to the task in the consumer.
 - `your_func_kwargs(not required)` - These are the keyword arguments passed to the task in the consumer.
+
+## Task registry full example
+
+To correctly register tasks in the registry, the task name should correspond to the Python path, starting from the directory specified in PYTHONPATH to the module and the task function. For example:
+
+We have the `/app/` directory set as the PYTHONPATH.
+Inside this directory, there is a module called `hello_module`, and within it, a file `hello.py` that contains an asynchronous function `hello_world()` (our task).
+
+In this case, the task registry should look like this:
+```python
+task_registry = {
+    "hello_world": "hello_module.hello",
+}
+```
