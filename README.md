@@ -194,8 +194,6 @@ if __name__ == "__main__":
 
 ## Task registry full example
 
-To correctly register tasks in the registry, the task name should correspond to the Python path, starting from the directory specified in PYTHONPATH to the module. For example:
-
 We have the `/app/` directory set as the PYTHONPATH.
 Inside this directory, there is a module called `hello_module`, and within it, a file `hello.py` that contains an asynchronous function `hello_world()` (our task).
 
