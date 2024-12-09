@@ -104,7 +104,7 @@ aio-pika==9.5.3
 
 ### You need to declare the following environment variables:
 #### Required:
-- `PARSLEY__RABBITMQ_HOST`: Host address of the RabbitMQ server.
+- `PARSLEY__MESSAGE_EXECUTE_INTERVAL`: The frequency at which tasks will be executed by the executor.- `PARSLEY__RABBITMQ_HOST`: Host address of the RabbitMQ server.
 - `PARSLEY__RABBITMQ_PORT`: Port number for the RabbitMQ server.
 - `PARSLEY__RABBITMQ_USER`: Username for authenticating with the RabbitMQ server.
 - `PARSLEY__RABBITMQ_PASSWORD`: Password for authenticating with the RabbitMQ server.
