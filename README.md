@@ -32,8 +32,9 @@ from contextlib import asynccontextmanager
 from logging import config as logging_config
 
 from parsley.consumers.redis import AsyncRedisConsumer
-from parsley.executors import SimpleAsyncTaskExecutor
+from parsley.executors.basic import AsyncTaskExecutor
 from parsley.worker import AsyncTaskWorker
+from parsley.executors.di_container import LocalExecutorQueueContainer
 
 
 @asynccontextmanager
@@ -49,14 +50,17 @@ async def get_worker(consumer, task_executor, logger=logging.getLogger(""), bloc
 
 async def main():
     logging_config.dictConfig(LOGGING)  # your log_conf
+    queue_container = LocalExecutorQueueContainer()
+    await queue_container.initialize()
     async with get_worker(
         consumer=AsyncRedisConsumer(
-            channel_name="your_channel_name", logger=logging.getLogger("consumer")
+            queue_name="your_channel_name", logger=logging.getLogger("consumer")
         ),
-        task_executor=SimpleAsyncTaskExecutor(
+        task_executor=AsyncTaskExecutor(
             task_registry={
                 "your_async_func_task_name": "your_task_module.your_task_module",
             },
+            di_queue_container=queue_container,
             logger=logging.getLogger("executor"),
         ),
         logger=logging.getLogger("worker"),
@@ -81,7 +85,7 @@ from parsley.producers.redis import AsyncRedisProducer
 
 @asynccontextmanager
 async def get_producer(channel_name):
-    producer = AsyncRedisProducer(channel_name=channel_name)
+    producer = AsyncRedisProducer(queue_name=channel_name)
     yield producer
     await producer.close()
 
@@ -121,7 +125,8 @@ from contextlib import asynccontextmanager
 from logging import config as logging_config
 
 from parsley.consumers.rabbitmq import AsyncRabbitMQConsumer
-from parsley.executors import SimpleAsyncTaskExecutor
+from parsley.executors.basic import AsyncTaskExecutor
+from parsley.executors.di_container import LocalExecutorQueueContainer
 from parsley.worker import AsyncTaskWorker
 
 
@@ -139,15 +144,17 @@ async def get_worker(consumer, task_executor, logger=logging.getLogger("consumer
 
 async def main():
     logging_config.dictConfig(LOGGING)  # your log_conf
+    container = LocalExecutorQueueContainer()
+    await container.initialize()
     async with get_worker(
         consumer=AsyncRabbitMQConsumer(
-            queue_name="your_channel_name", logger=logging.getLogger("consumer")
+            queue_name="queue_name", logger=logging.getLogger("consumer")
         ),
-        task_executor=SimpleAsyncTaskExecutor(
+        task_executor=AsyncTaskExecutor(
             task_registry={
                 "your_async_func_task_name": "your_task_module.your_task_module",
             },
-
+            di_queue_container=container,
             logger=logging.getLogger("executor"),
         ),
         bloking=True,
@@ -157,6 +164,7 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+
 
 ```
 - The task registry module value should match the Python import path, like PYTHONPATH/your_module.your_module.
@@ -173,15 +181,15 @@ from parsley.producers.rabbitmq import AsyncRabbitMQProducer
 
 
 @asynccontextmanager
-async def get_producer(channel_name):
-    producer = AsyncRabbitMQProducer(queue_name=channel_name)
+async def get_producer(queue_name):
+    producer = AsyncRabbitMQProducer(queue_name=queue_name)
     await producer.initialize()
     yield producer
     await producer.close()
 
 
 async def test():
-    async with get_producer("your_channel_name") as test_producer:
+    async with get_producer("queue_name") as test_producer:
         await test_producer.produce("your_func_name", *your_func_args, **your_func_kwargs)
 
 if __name__ == "__main__":

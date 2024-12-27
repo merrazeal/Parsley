@@ -4,21 +4,23 @@ from importlib import import_module
 
 from parsley.message import InputData, Message
 from parsley.ports.executor import BaseAsyncExecutor
+from parsley.ports.di.container import BaseExecutorQueueContainer
 from parsley.settings import settings
 
 
-class SimpleAsyncTaskExecutor(BaseAsyncExecutor):
+class AsyncTaskExecutor(BaseAsyncExecutor):
     """Executor class responsible for executing tasks based on messages from queue."""
 
     def __init__(
         self,
         task_registry: dict[str, str],
+        di_queue_container: BaseExecutorQueueContainer,
         logger: logging.Logger = logging.getLogger(""),
     ) -> None:
         self.tasks = {}
         self.task_registry = task_registry
         self.logger = logger
-        self.exe_queue = asyncio.Queue()
+        self.di_queue_container = di_queue_container
 
     async def initialize(self) -> None:
         """Initializes task executor by dynamically loading tasks from task registry."""
@@ -45,14 +47,15 @@ class SimpleAsyncTaskExecutor(BaseAsyncExecutor):
         while True:
             await asyncio.sleep(settings.message_execute_interval)
             self.logger.info("🚀 Starting task execution...")
-            if self.exe_queue.empty():
+            if await self.di_queue_container.empty():
                 self.logger.info("📭 No incoming messages to execute.")
                 continue
-            while not self.exe_queue.empty():
-                message: Message = await self.exe_queue.get()
+            while not await self.di_queue_container.empty():
+                message: Message = await self.di_queue_container.get()
                 task = self.tasks.get(message.task_name)
                 if task:
                     await self._execute(message.task_name, message.input_data)
             self.logger.info("Executed all accumulated messages.")
 
-    async def close(self): ...
+    async def close(self):
+        await self.di_queue_container.close()

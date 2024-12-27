@@ -29,7 +29,7 @@ class AsyncTaskWorker(BaseAsyncTaskWorker):
             new_message: Message | None = await self.consumer.consume()
             if new_message:
                 self.logger.info(f"New messages received: {new_message}")
-                await self.task_executor.exe_queue.put(new_message)
+                await self.task_executor.di_queue_container.put(new_message)
 
     async def run(self) -> None:
         """Starts the task worker. Initializes both the consumer and executor,
