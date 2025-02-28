@@ -1,4 +1,3 @@
-import asyncio
 import pytest_asyncio
 
 from parsley.producers.redis import AsyncRedisProducer
@@ -16,7 +15,6 @@ async def redis_producer():
 
 @pytest_asyncio.fixture(scope="session")
 async def rabbitmq_producer():
-    await asyncio.sleep(1)
     producer = AsyncRabbitMQProducer(queue_name=settings.rabbitmq_queue_name)
     await producer.initialize()
     yield producer
