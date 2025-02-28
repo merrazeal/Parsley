@@ -1,6 +1,8 @@
 from functools import lru_cache
-from pydantic_settings import BaseSettings
+
 from pydantic import Field
+from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     rabbitmq_queue_name: str = "parslsey_test"
@@ -11,5 +13,6 @@ class Settings(BaseSettings):
 @lru_cache(maxsize=1)
 def get_settings():
     return Settings()
+
 
 settings = get_settings()

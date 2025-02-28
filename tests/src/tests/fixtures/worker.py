@@ -1,9 +1,8 @@
-import asyncio
 import pytest_asyncio
 
-from parsley.executors.basic import AsyncTaskExecutor
-from parsley.consumers.redis import AsyncRedisConsumer
 from parsley.consumers.rabbitmq import AsyncRabbitMQConsumer
+from parsley.consumers.redis import AsyncRedisConsumer
+from parsley.executors.basic import AsyncTaskExecutor
 from parsley.executors.di_container import LocalExecutorQueueContainer
 from parsley.worker import AsyncTaskWorker
 from tests.src.core.settings import settings
@@ -12,9 +11,7 @@ from tests.src.core.settings import settings
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def redis_worker():
     worker = AsyncTaskWorker(
-        consumer=AsyncRedisConsumer(
-            queue_name=settings.redis_channel_name
-        ),
+        consumer=AsyncRedisConsumer(queue_name=settings.redis_channel_name),
         task_executor=AsyncTaskExecutor(
             task_registry={
                 "sleep_task": "tests.src.tests.tasks.sleep",
@@ -31,9 +28,7 @@ async def redis_worker():
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def rabbitmq_worker():
     worker = AsyncTaskWorker(
-        consumer=AsyncRabbitMQConsumer(
-            queue_name=settings.rabbitmq_queue_name
-        ),
+        consumer=AsyncRabbitMQConsumer(queue_name=settings.rabbitmq_queue_name),
         task_executor=AsyncTaskExecutor(
             task_registry={
                 "sleep_task": "tests.src.tests.tasks.sleep",

@@ -1,13 +1,11 @@
-
-
 import asyncio
 import logging
+
 from parsley.message import Message
 from parsley.ports.di.container import BaseExecutorQueueContainer
 
 
 class LocalExecutorQueueContainer(BaseExecutorQueueContainer):
-
     def __init__(self, logger: logging.Logger = logging.getLogger("")):
         self.logger = logger
 

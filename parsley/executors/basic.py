@@ -3,8 +3,8 @@ import logging
 from importlib import import_module
 
 from parsley.message import Message
-from parsley.ports.executor import BaseAsyncExecutor
 from parsley.ports.di.container import BaseExecutorQueueContainer
+from parsley.ports.executor import BaseAsyncExecutor
 from parsley.settings import settings
 
 

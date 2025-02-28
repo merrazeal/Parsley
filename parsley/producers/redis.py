@@ -9,9 +9,7 @@ from parsley.settings import settings
 
 
 class AsyncRedisProducer(BaseAsyncProducer):
-    def __init__(
-        self, queue_name, logger: logging.Logger = logging.getLogger("")
-    ) -> None:
+    def __init__(self, queue_name, logger: logging.Logger = logging.getLogger("")) -> None:
         self.channel_name = queue_name  # is channel_name, queue for di compabilty
         self.client = StrictRedis(
             host=settings.redis_host,

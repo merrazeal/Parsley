@@ -5,7 +5,6 @@ import pytest
 
 from tests.src.core.settings import settings
 
-
 pytestmark = pytest.mark.asyncio(loop_scope="session")
 
 

@@ -16,7 +16,6 @@ class Message(BaseModel):
 
 
 class MessageBuilder:
-
     @classmethod
     def build(cls, func_name, *args, **kwargs) -> Message:
         return Message(

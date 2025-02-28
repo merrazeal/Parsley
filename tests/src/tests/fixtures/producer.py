@@ -1,7 +1,7 @@
 import pytest_asyncio
 
-from parsley.producers.redis import AsyncRedisProducer
 from parsley.producers.rabbitmq import AsyncRabbitMQProducer
+from parsley.producers.redis import AsyncRedisProducer
 from tests.src.core.settings import settings
 
 

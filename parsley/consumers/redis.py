@@ -10,9 +10,7 @@ from parsley.settings import settings
 
 
 class AsyncRedisConsumer(BaseAsyncConsumer):
-    def __init__(
-        self, queue_name: str, logger: logging.Logger = logging.getLogger("")
-    ) -> None:
+    def __init__(self, queue_name: str, logger: logging.Logger = logging.getLogger("")) -> None:
         self.client = StrictRedis(
             host=settings.redis_host,
             port=settings.redis_port,
@@ -42,7 +40,7 @@ class AsyncRedisConsumer(BaseAsyncConsumer):
         )
         if raw_message:
             return Message(**json.loads(raw_message["data"].decode("utf-8")))
-    
+
     @backoff.on_exception(**settings.backoff_config)
     async def close(self) -> None:
         """Closes the Redis Pub/Sub channel and the Redis client connection."""

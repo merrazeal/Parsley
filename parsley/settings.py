@@ -1,9 +1,10 @@
-from functools import lru_cache
 import logging
+from functools import lru_cache
 
 from backoff import expo
-from pydantic_settings import BaseSettings
 from pydantic import ConfigDict
+from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     # General conf
@@ -27,7 +28,6 @@ class Settings(BaseSettings):
     rabbitmq_max_wait_poll_time: int = 5
 
     model_config = ConfigDict(env_prefix="PARSLEY__")
-
 
     @property
     def rabbitmq_url(self):

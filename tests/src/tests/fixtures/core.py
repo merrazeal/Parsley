@@ -3,7 +3,7 @@ from logging.config import dictConfig
 
 import pytest
 
-from tests.src.core.logger import LOGGING
+from tests.src.core.logger import LOGGING  # type: ignore
 
 
 @pytest.fixture(scope="session")
