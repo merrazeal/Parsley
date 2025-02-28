@@ -1,0 +1,43 @@
+services:
+  redis:
+    restart: unless-stopped
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    image: redis:7-alpine
+    healthcheck:
+      interval: 2s
+      retries: 10
+      timeout: 10s
+      test: ["CMD-SHELL", "redis-cli", "ping"]
+
+  rabbitmq:
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=app
+      - RABBITMQ_DEFAULT_PASS=123qwe
+      - RABBITMQ_DEFAULT_VHOST=parsley_test
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit disk_free_limit 2147483648
+    image: rabbitmq:3.13-rc-management-alpine
+    healthcheck:
+      interval: 2s
+      retries: 10
+      timeout: 10s
+      test:
+        - CMD-SHELL
+        - |
+          rabbitmq-diagnostics -q ping && \
+          rabbitmqctl list_users | grep -q 'app' && \
+          rabbitmqctl list_vhosts | grep -q 'parsley_test'
+
+  parsley_tests:
+    build:
+      context: ..
+      dockerfile: ./tests/Dockerfile
+    env_file:
+      - .env.test
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy

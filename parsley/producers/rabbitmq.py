@@ -3,6 +3,7 @@ import logging
 
 from aio_pika import Message as AioPikaMessage
 from aio_pika import connect
+import backoff
 
 from parsley.message import MessageBuilder
 from parsley.ports.producer import BaseAsyncProducer
@@ -17,12 +18,15 @@ class AsyncRabbitMQProducer(BaseAsyncProducer):
         self.routing_key = queue_name  # for direct exchange
         self.logger = logger
 
+    @backoff.on_exception(**settings.backoff_config)
     async def initialize(self):
         self.connection = await connect(
             settings.rabbitmq_url, loop=asyncio.get_running_loop()
         )
         self.channel = await self.connection.channel()
+        self.logger.info("AsyncRabbitMQProducer initialized successfully")
 
+    @backoff.on_exception(**settings.backoff_config)
     async def produce(self, task_name, *args, **kwargs):
         message = MessageBuilder.build(task_name, *args, **kwargs)
         await self.channel.default_exchange.publish(
@@ -33,5 +37,6 @@ class AsyncRabbitMQProducer(BaseAsyncProducer):
             self.routing_key,
         )
 
+    @backoff.on_exception(**settings.backoff_config)
     async def close(self) -> None:
         await self.connection.close()

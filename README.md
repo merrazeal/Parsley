@@ -16,7 +16,7 @@ redis==5.2.0
 
 ### You need to declare the following environment variables:
 #### Required:
-- `PARSLEY__MESSAGE_EXECUTE_INTERVAL`: The frequency at which tasks will be executed by the executor.
+- `PARSLEY__TASKS_EXECUTE_INTERVAL`: The frequency at which tasks will be executed by the executor.
 - `PARSLEY__REDIS_HOST`: Host address of the Redis server.
 - `PARSLEY__REDIS_PORT`: Port number for the Redis server.
 - `PARSLEY__REDIS_DB`: Redis database index number to use.
@@ -50,8 +50,6 @@ async def get_worker(consumer, task_executor, logger=logging.getLogger(""), bloc
 
 async def main():
     logging_config.dictConfig(LOGGING)  # your log_conf
-    queue_container = LocalExecutorQueueContainer()
-    await queue_container.initialize()
     async with get_worker(
         consumer=AsyncRedisConsumer(
             queue_name="your_channel_name", logger=logging.getLogger("consumer")
@@ -60,7 +58,7 @@ async def main():
             task_registry={
                 "your_async_func_task_name": "your_task_module.your_task_module",
             },
-            di_queue_container=queue_container,
+            di_queue_container=LocalExecutorQueueContainer(),
             logger=logging.getLogger("executor"),
         ),
         logger=logging.getLogger("worker"),
@@ -108,7 +106,8 @@ aio-pika==9.5.3
 
 ### You need to declare the following environment variables:
 #### Required:
-- `PARSLEY__MESSAGE_EXECUTE_INTERVAL`: The frequency at which tasks will be executed by the executor.- `PARSLEY__RABBITMQ_HOST`: Host address of the RabbitMQ server.
+- `PARSLEY__TASKS_EXECUTE_INTERVAL`: The frequency at which tasks will be executed by the executor.- `PARSLEY__RABBITMQ_HOST`: Host address of the RabbitMQ server.
+- `PARSLEY__RABBITMQ_HOST`: Host for the RabbitMQ server.
 - `PARSLEY__RABBITMQ_PORT`: Port number for the RabbitMQ server.
 - `PARSLEY__RABBITMQ_USER`: Username for authenticating with the RabbitMQ server.
 - `PARSLEY__RABBITMQ_PASSWORD`: Password for authenticating with the RabbitMQ server.
@@ -144,8 +143,6 @@ async def get_worker(consumer, task_executor, logger=logging.getLogger("consumer
 
 async def main():
     logging_config.dictConfig(LOGGING)  # your log_conf
-    container = LocalExecutorQueueContainer()
-    await container.initialize()
     async with get_worker(
         consumer=AsyncRabbitMQConsumer(
             queue_name="queue_name", logger=logging.getLogger("consumer")
@@ -154,7 +151,7 @@ async def main():
             task_registry={
                 "your_async_func_task_name": "your_task_module.your_task_module",
             },
-            di_queue_container=container,
+            di_queue_container=LocalExecutorQueueContainer(),
             logger=logging.getLogger("executor"),
         ),
         bloking=True,

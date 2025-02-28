@@ -1,6 +1,7 @@
 import json
 import logging
 
+import backoff
 from redis.asyncio import StrictRedis
 
 from parsley.message import Message
@@ -23,10 +24,13 @@ class AsyncRedisConsumer(BaseAsyncConsumer):
         self.channel_name = queue_name  # is channel_name, queue for di compabilty
         self.logger = logger
 
+    @backoff.on_exception(**settings.backoff_config)
     async def initialize(self) -> None:
         """ "Subscribes to the specified Redis channel."""
         await self.channel.subscribe(self.channel_name)
+        self.logger.info("AsyncRedisConsumer initialized successfully")
 
+    @backoff.on_exception(**settings.backoff_config)
     async def consume(self) -> Message | None:
         """Consumes messages from the subscribed Redis channel.
 
@@ -38,8 +42,11 @@ class AsyncRedisConsumer(BaseAsyncConsumer):
         )
         if raw_message:
             return Message(**json.loads(raw_message["data"].decode("utf-8")))
-
+    
+    @backoff.on_exception(**settings.backoff_config)
     async def close(self) -> None:
         """Closes the Redis Pub/Sub channel and the Redis client connection."""
-        await self.channel.close()
-        await self.client.close()
+        if self.channel:
+            await self.channel.aclose()
+        if self.client:
+            await self.client.aclose()

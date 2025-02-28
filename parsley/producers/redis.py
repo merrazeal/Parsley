@@ -1,5 +1,6 @@
 import logging
 
+import backoff
 from redis.asyncio import StrictRedis
 
 from parsley.message import MessageBuilder
@@ -21,13 +22,16 @@ class AsyncRedisProducer(BaseAsyncProducer):
         )
         self.logger = logger
 
-    async def initialize(self): ...
+    async def initialize(self):
+        self.logger.info("AsyncRedisProducer initialized successfully")
 
+    @backoff.on_exception(**settings.backoff_config)
     async def produce(self, task_name, *args, **kwargs):
         """Publishes a message to the specified Redis channel."""
         message = MessageBuilder.build(task_name, *args, **kwargs)
         await self.client.publish(self.channel_name, message.model_dump_json())
 
+    @backoff.on_exception(**settings.backoff_config)
     async def close(self) -> None:
         """Closes the Redis client connection."""
-        await self.client.close()
+        await self.client.aclose()

@@ -5,6 +5,7 @@ import logging
 from aio_pika import Message as AioPikaMessage
 from aio_pika import connect
 from aio_pika import exceptions as aio_pika_exceptions
+import backoff
 
 from parsley.message import Message
 from parsley.ports.consumer import BaseAsyncConsumer
@@ -19,12 +20,12 @@ class AsyncRabbitMQConsumer(BaseAsyncConsumer):
         self.routing_key = queue_name  # for direct exchange
         self.logger = logger
 
+    @backoff.on_exception(**settings.backoff_config)
     async def initialize(self) -> None:
         """
         Establishes a connection to RabbitMQ, declares the exchange and queue,
         and binds the queue to the specified routing key.
         """
-        self.logger.info(settings.rabbitmq_url)
         self.connection = await connect(
             settings.rabbitmq_url, loop=asyncio.get_running_loop()
         )
@@ -32,7 +33,9 @@ class AsyncRabbitMQConsumer(BaseAsyncConsumer):
         self.exchange = await channel.declare_exchange("direct")
         self.queue = await channel.declare_queue(self.queue_name)
         await self.queue.bind(self.exchange, self.routing_key)
+        self.logger.info("AsyncRabbitMQConsumer initialized successfully")
 
+    @backoff.on_exception(**settings.backoff_config)
     async def consume(self):
         """
         Consumes messages from the bound RabbitMQ queue.
@@ -46,18 +49,21 @@ class AsyncRabbitMQConsumer(BaseAsyncConsumer):
             )
         except aio_pika_exceptions.QueueEmpty:
             self.logger.debug("queue is empty... sleeping...")
-            await asyncio.sleep(settings.rabbimq_empty_queue_delay)
+            await asyncio.sleep(settings.rabbitmq_empty_queue_delay)
         else:
             message = Message(**json.loads(raw_message.body.decode("utf-8")))
             await raw_message.ack()
             return message
 
+    @backoff.on_exception(**settings.backoff_config)
     async def close(self) -> None:
         """
         Closes the RabbitMQ queue and connection.
 
         Unbinds the queue from the exchange, deletes the queue, and closes the connection.
         """
-        await self.queue.unbind(self.exchange, self.routing_key)
-        await self.queue.delete()
-        await self.connection.close()
+        if self.queue:
+            await self.queue.unbind(self.exchange, self.routing_key)
+            await self.queue.delete()
+        if self.connection:
+            await self.connection.close()

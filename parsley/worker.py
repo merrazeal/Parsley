@@ -35,20 +35,9 @@ class AsyncTaskWorker(BaseAsyncTaskWorker):
         """Starts the task worker. Initializes both the consumer and executor,
         and begins processing messages
         """
+        await self.task_executor.initialize()
+        await self.consumer.initialize()
         self.logger.info("Starting to consume messages")
-        try:
-            await self.task_executor.initialize()
-        except Exception as e:
-            self.logger.error(f"Executor initialized failed: {e}")
-        else:
-            self.logger.info("Executor initialized successfully")
-
-        try:
-            await self.consumer.initialize()
-        except Exception as e:
-            self.logger.error(f"Consumer initialized failed: {e}")
-        else:
-            self.logger.info("Consumer initialized successfully")
         asyncio.create_task(self.task_executor.run())
         if self.blocking:
             await self._poll()
