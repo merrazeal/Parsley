@@ -17,4 +17,4 @@ async def test_task_execution(rabbitmq_worker, rabbitmq_producer, test_logger):
     await asyncio.sleep(settings.execute_interval)
     mock_task.assert_called_once_with(1)
     assert await rabbitmq_worker.task_executor.di_queue_container.empty()
-    test_logger.info("Redis-based task management system integration test completed successfully")
+    test_logger.info("RabbitMQ-based task management system integration test completed successfully")
