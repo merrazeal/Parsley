@@ -1,6 +1,5 @@
 services:
   redis:
-    restart: unless-stopped
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -12,7 +11,6 @@ services:
       test: ["CMD-SHELL", "redis-cli", "ping"]
 
   rabbitmq:
-    restart: unless-stopped
     environment:
       - RABBITMQ_DEFAULT_USER=app
       - RABBITMQ_DEFAULT_PASS=123qwe
